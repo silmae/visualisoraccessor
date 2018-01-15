@@ -295,10 +295,10 @@ class VisualisorAccessor(object):
         spectra_list = self._obj.M.to_list()
         how_many = len(spectra_list)
         max_amount = 3000
-        step = int(how_many/max_amount) + 1
         if how_many <= max_amount:
             return spectra_list
-        return spectra_list[0:how_many:step]
+        step = int(how_many / max_amount) + 1
+        return spectra_list[0::step]
 
     def _new_choosing_spectre(self, bounds):
         '''
@@ -394,10 +394,8 @@ class VisualisorAccessor(object):
         goes_through = _goes_through(spectre,
                                      third_dim_data,
                                      bounds)
-        if goes_through or points_in:
-            return True
-        return False
 
+        return goes_through or points_in
     def _record_selections(self, bounds, points):
         '''
         Function that keeps track of what is selected. Keeps 'selected' -table
