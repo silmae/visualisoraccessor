@@ -142,7 +142,9 @@ class VisualisorAccessor(object):
         Visual tool
         for visualizing selected spectra and narrowing down mask based
         on spectra. It is easy to make a mistake with this, so you should
-        keep a backup of your mask.
+        keep a backup of your mask. You shouldn't use this on very large sets.
+        TODO: This algorithm seems quite unefficient, maybe adding threading
+        TODO:        could help.
         :param kwargs: array, if you want to pre select pixels,
                        initialize_mask, True if you want to initialize mask.
                                         True also Overrides array.
@@ -310,7 +312,7 @@ class VisualisorAccessor(object):
         spectra_list = self._obj.M.to_list()
         third_dim = self._obj.M.no_mask_dims[0]
         third_dim_data = self._obj.coords[third_dim].data
-
+        
         for (i, spectre) in enumerate(spectra_list):
             drop = not self._is_in(spectre, third_dim_data, bounds)
 
@@ -321,7 +323,13 @@ class VisualisorAccessor(object):
 
     @staticmethod
     def _is_in(spectre, third_dim_data, bounds):
-
+        """
+        Method to define if a graph goes through a box
+        :param spectre: the graph y-data
+        :param third_dim_data: the graph x-data
+        :param bounds: the box in form of [x_low_left, y_ll, x_top_right, y_tr]
+        :return: True or False
+        """
         def _points_in(spectre, third_dim_data, bounds):
             x_low_left = bounds[0]
             y_low_left = bounds[1]
@@ -396,6 +404,7 @@ class VisualisorAccessor(object):
                                      bounds)
 
         return goes_through or points_in
+
     def _record_selections(self, bounds, points):
         '''
         Function that keeps track of what is selected. Keeps 'selected' -table
@@ -423,7 +432,6 @@ class VisualisorAccessor(object):
     def _make_dataset_opts(self):
         '''
         Makes Dataset options.
-        TODO: test
         '''
         data = []
         all_dims = self._obj.dims
@@ -559,5 +567,8 @@ class VisualisorAccessor(object):
         values = counts_np.T.flatten()
         table = hv.Table((x_values, y_values, values),
                          kdims=['Wavelength', 'Intensity'], vdims=['z'])
-        layout = hv.HeatMap(table)
+        layout = hv.HeatMap(table).opts(plot=dict(tools=['hover'],
+                                                  colorbar=True,
+                                                  toolbar='above',
+                                                  show_title=False))
         return layout
