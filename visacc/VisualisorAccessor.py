@@ -468,7 +468,8 @@ class VisualisorAccessor(object):
                             n_bins,
                         visualize: Do you want to see the histogram?,
                         n_bins: Number of bins.
-        :return: The image of histogram and histogram as numpy array
+        :return: The image of histogram and histogram as numpy array and
+                    bin edges
         '''
         # flag='log',
         # edges=None,
