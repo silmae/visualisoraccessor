@@ -561,15 +561,25 @@ class VisualisorAccessor(object):
         :param counts_np: histograms
         :param band_dim: dimension of bands
         :return: image of histogram
-        TODO: Make it prettier.
         '''
-        x_values = np.tile(self._obj.coords[band_dim].data, len(centers))
-        y_values = np.repeat(centers, len(self._obj.coords[band_dim].data))
-        values = counts_np.T.flatten()
-        table = hv.Table((x_values, y_values, values),
-                         kdims=['Wavelength', 'Intensity'], vdims=['z'])
-        layout = hv.HeatMap(table).opts(plot=dict(tools=['hover'],
-                                                  colorbar=True,
-                                                  toolbar='above',
-                                                  show_title=False))
+        # x_values = np.tile(self._obj.coords[band_dim].data, len(centers))
+        # y_values = np.repeat(centers, len(self._obj.coords[band_dim].data))
+        # values = counts_np.T.flatten()
+        # table = hv.Table((x_values, y_values, values),
+        #                 kdims=['Wavelength', 'Intensity'], vdims=['z'])
+        # layout = [0,0]
+        # layout[0] = hv.HeatMap(table).opts(plot=dict(tools=['hover'],
+        #                                          colorbar=True,
+        #                                           toolbar='above',
+        #                                           show_title=False))
+        # layout = table
+        layout = hv.Image((self._obj.coords[band_dim].data,
+                           centers,
+                           counts_np.T),
+                          kdims=['Wavelength',
+                                 'Intensity'],
+                          vdims=['z']).opts(plot=dict(tools=['hover'],
+                                                      colorbar=True,
+                                                      toolbar='above',
+                                                      show_title=False))
         return layout
