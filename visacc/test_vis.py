@@ -126,7 +126,7 @@ class test(unittest.TestCase):
                                      'b': [1, 2, 3],
                                      'c': [1, 2]
                              })
-        cube2.M.refresh(dims=['b','c'])
+        cube2.M.reset(dims=['b','c'])
         layout = cube1.visualize.show_mask()
         layout2 = cube2.visualize.show_mask()
         self.assertTrue(isinstance(layout, hv.Image))
@@ -135,16 +135,16 @@ class test(unittest.TestCase):
         dims2 = [hv.Dimension('c'), hv.Dimension('b'), hv.Dimension('Value')]
         self.assertEqual(layout.dimensions(), dims)
         self.assertEqual(layout2.dimensions(), dims2)
-        cube2.M.refresh(dims=['c', 'b'])
+        cube2.M.reset(dims=['c', 'b'])
         layout2 = cube2.visualize.show_mask()
         self.assertTrue(isinstance(layout2, hv.Image))
         self.assertEqual(layout2.dimensions(), dims2)
-        cube2.M.refresh(dims=['a', 'c'])
+        cube2.M.reset(dims=['a', 'c'])
         layout2 = cube2.visualize.show_mask()
         dims2 = [hv.Dimension('c'), hv.Dimension('a'), hv.Dimension('Value')]
         self.assertTrue(isinstance(layout2, hv.Image))
         self.assertEqual(layout2.dimensions(), dims2)
-        cube2.M.refresh(dims=['b', 'a'])
+        cube2.M.reset(dims=['b', 'a'])
         layout2 = cube2.visualize.show_mask()
         dims2 = [hv.Dimension('b'), hv.Dimension('a'), hv.Dimension('Value')]
         self.assertTrue(isinstance(layout2, hv.Image))
@@ -233,7 +233,7 @@ class test(unittest.TestCase):
         self.assertTrue((exp_res == res).all)
 
 
-        cube.M.refresh(dims=['a', 'b'])
+        cube.M.reset(dims=['a', 'b'])
         cube.M.selected_zeros()  # Mask width (first coord) is 4 and height 3
         exp_res = pd.DataFrame(data=np.array([[0, 0], # 3
                                               [0, 2], # 1
@@ -507,7 +507,7 @@ class test(unittest.TestCase):
                    'vdims':['Value']}
         res = cube1.visualize._make_dataset_opts()
         self.assertTrue(res == exp_res)
-        cube1.M.refresh(dims=['b', 'a'])
+        cube1.M.reset(dims=['b', 'a'])
         exp_res = {'data': ([1, 2], range(0, 3), range(0, 4), cube1),
                    'kdims': ['c', 'b', 'a'],
                    'vdims': ['Value']}
@@ -515,6 +515,8 @@ class test(unittest.TestCase):
         self.assertTrue(res == exp_res)
 
     def test_histogram(self):
+        # TODO: Visualize=True cannot be tested, check later updates on
+        # HoloViews.
         data = [[[1,2,2,3],[1,3,2,5]],
                 [[3,2,2,2],[2,6,4,5]],
                 [[5,78,32,5],[1,32,4,7]]]
@@ -523,7 +525,8 @@ class test(unittest.TestCase):
                             coords={'y':[1, 2, 3],
                                     'x':[1, 2],
                                     'z':[1, 2, 3, 4]})
-        layout, hist, bin_edges = cube.visualize.histogram(band_dim='y')
+        layout, hist, bin_edges = cube.visualize.histogram(band_dim='y',
+                                                           visualize=False)
         self.assertTrue(len(bin_edges == 3))
         len_1 = bin_edges[1] - bin_edges[0]
         len_2 = bin_edges[2] - bin_edges[1]
@@ -532,7 +535,8 @@ class test(unittest.TestCase):
                             [7 / len_1, 1 / len_2]])
         self.assertTrue((hist == exp_res).all)
 
-        layout, hist, bin_edges = cube.visualize.histogram(band_dim='x')
+        layout, hist, bin_edges = cube.visualize.histogram(band_dim='x',
+                                                           visualize=False)
         self.assertTrue(len(bin_edges == 4))
         len_1 = bin_edges[1] - bin_edges[0]
         len_2 = bin_edges[2] - bin_edges[1]
@@ -541,7 +545,8 @@ class test(unittest.TestCase):
                             [13 / len_1, 1 / len_2, 0 / len_3]])
         self.assertTrue((hist == exp_res).all)
 
-        layout, hist, bin_edges = cube.visualize.histogram(band_dim='z')
+        layout, hist, bin_edges = cube.visualize.histogram(band_dim='z',
+                                                           visualize=False)
         self.assertTrue(len(bin_edges == 2))
         len_1 = bin_edges[1] - bin_edges[0]
         len_2 = bin_edges[2] - bin_edges[1]

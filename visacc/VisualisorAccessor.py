@@ -581,5 +581,6 @@ class VisualisorAccessor(object):
                           vdims=['z']).opts(plot=dict(tools=['hover'],
                                                       colorbar=True,
                                                       toolbar='above',
-                                                      show_title=False))
+                                                      show_title=False,
+                                                      backend='matplotlib'))
         return layout
