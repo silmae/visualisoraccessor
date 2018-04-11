@@ -49,14 +49,14 @@ class VisualisorAccessor(object):
         '''
         return hv.Image(self._obj, vdims=['Value'])
 
-    def basic(self, sliders):
+    def basic(self, sliders, flip_axis=False):
         '''
         Basic visualisation for xarray.
         Usage: if you have a xarray.DataArray named cube with dimensions
         ('x', 'y', 'band'), you can use this as:
         cube.visualize.basic(sliders=['band']) #or
         cube.visualize.basic(sliders=['x']) #or
-        cube.visualize.basic(sliders=['y'])
+        cube.visualize.basic(sliders=['y'], flip_axis=True)
         if you have a xarray.DataArray named cube with dimensions
         ('x','y','z','a'), you can use this for example as:
         cube.visualize.basic(sliders=['y', 'z'])
@@ -65,6 +65,9 @@ class VisualisorAccessor(object):
         If you have 2D data, use basic_2D
 
         :param sliders: The dimensions you want to use as sliders
+        :param flip_axis: change between first, second (False, not default)
+                            and second, first (True, not default) order
+                            of axis.
         :return: hv.AdjointLayout, with two dimensional images for each slider
         value combination.
         '''
@@ -80,6 +83,8 @@ class VisualisorAccessor(object):
             if not dimension in sliders:
                 dimensions_for_image.append(dimension)
                 # dimensions for image
+        if flip_axis:
+            dimensions_for_image.reverse()
         if len(dimensions_for_ds) - len(sliders) < 2:
             # Too many sliders.
             raise ValueError('You want too many sliders. Can\'t work like ' +
@@ -288,15 +293,16 @@ class VisualisorAccessor(object):
 
     def _appropriate_amount_of_graphs(self):
         '''
-        The amount of graphs in a picture is limited to ~4000.
+        The amount of graphs in a picture is limited to ~4000 by holoviews.
+        For computation time we limit it to ~300.
         This makes sure we dont take more. We take every nth curve and
         skip the others. They stay in the selected -table though.
         TODO: test
         '''
         assert isinstance(self._obj, xr.DataArray)
-        spectra_list = self._obj.M.to_list()
+        spectra_list = np.array(self._obj.M.to_list())
         how_many = len(spectra_list)
-        max_amount = 3000
+        max_amount = 300
         if how_many <= max_amount:
             return spectra_list
         step = int(how_many / max_amount) + 1
@@ -312,13 +318,11 @@ class VisualisorAccessor(object):
         spectra_list = self._obj.M.to_list()
         third_dim = self._obj.M.no_mask_dims[0]
         third_dim_data = self._obj.coords[third_dim].data
-        
         for (i, spectre) in enumerate(spectra_list):
             drop = not self._is_in(spectre, third_dim_data, bounds)
 
             if drop:
                 self._obj.M.unselect((pixel_list[i][0], pixel_list[i][1]))
-
         return self._appropriate_amount_of_graphs()
 
     @staticmethod
@@ -399,6 +403,8 @@ class VisualisorAccessor(object):
         points_in = _points_in(spectre,
                                third_dim_data,
                                bounds)
+        if points_in:
+            return points_in
         goes_through = _goes_through(spectre,
                                      third_dim_data,
                                      bounds)
