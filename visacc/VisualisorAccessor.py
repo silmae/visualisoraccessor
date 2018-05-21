@@ -49,7 +49,7 @@ class VisualisorAccessor(object):
         '''
         return hv.Image(self._obj, vdims=['Value'])
 
-    def basic(self, sliders, flip_axis=False):
+    def basic(self, sliders, flip_axis=False, dynamic=True):
         '''
         Basic visualisation for xarray.
         Usage: if you have a xarray.DataArray named cube with dimensions
@@ -98,7 +98,7 @@ class VisualisorAccessor(object):
                      dimensions_for_image,
                      'Value',
                      sliders,
-                     dynamic=True).hist()
+                     dynamic=dynamic).hist()
 
     def show_mask(self):
         '''
